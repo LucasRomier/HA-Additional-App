@@ -1,0 +1,14 @@
+{
+    "domain": "ha-additional-app",
+    "name": "HA AA",
+    "codeowners": ["@LucasRomier"],
+    "config_flow": true,
+    "dependencies": ["webhook"],
+    "documentation": "https://github.com/hacs/integration",
+    "integration_type": "hub",
+    "iot_class": "local_push",
+    "quality_scale": "bronze",
+    "issue_tracker": "https://github.com/hacs/integration/issues",
+    "requirements": ["qrcode==7.4.2"],
+    "version": "0.0.1"
+}

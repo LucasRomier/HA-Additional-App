@@ -1,0 +1,26 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "HA AA is already configured"
+    },
+    "error": {
+      "unknown": "An unknown error occurred"
+    },
+    "step": {
+      "user": {
+        "title": "HA AA Alarm Configuration",
+        "description": "Select which Home Assistant URL to use for the webhook that receives alarm data from your Android app.",
+        "data": {
+          "url_type": "URL Type"
+        },
+        "data_description": {
+          "url_type": "Local: internal network only, Public: accessible from internet"
+        }
+      },
+      "confirm": {
+        "title": "Webhook URL and QR Code",
+        "description": "Scan this QR code or copy the webhook URL below into your Android app:\n\n{qr_code}\n\n**Webhook URL:**\n\n`{webhook_url}`"
+      }
+    }
+  }
+}
