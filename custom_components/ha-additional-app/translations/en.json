@@ -22,5 +22,12 @@
         "description": "Scan this QR code or copy the webhook URL below into your Android app:\n\n{qr_code}\n\n**Webhook URL:**\n\n`{webhook_url}`"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "next_alarm": {
+        "name": "Next Alarm"
+      }
+    }
   }
 }

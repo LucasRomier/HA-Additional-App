@@ -21,8 +21,8 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR]
 
-# Refresh next alarm computation every 60 seconds to account for time passing
-REFRESH_INTERVAL = 60
+# Refresh next alarm computation every 15 minutes
+REFRESH_INTERVAL = 60 * 15
 
 type LRHAAAConfigEntry = ConfigEntry[AlarmCoordinator]
 
@@ -91,6 +91,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: LRHAAAConfigEntry) -> bo
         return False
 
     # Set up periodic refresh for next alarm computation
+    refresh_handle_storage: dict = {"handle": None}
+    
     async def refresh_alarm(now: datetime | None = None) -> None:
         """Refresh next alarm computation."""
         _LOGGER.debug("Refreshing next alarm computation")
@@ -98,13 +100,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: LRHAAAConfigEntry) -> bo
             coordinator.refresh_next_alarm()
         except Exception:
             _LOGGER.exception("Error refreshing next alarm")
+        # Reschedule the next refresh
+        refresh_handle_storage["handle"] = async_call_later(
+            hass, REFRESH_INTERVAL, refresh_alarm
+        )
 
-    refresh_handle = async_call_later(hass, REFRESH_INTERVAL, refresh_alarm)
+    # Schedule the first refresh
+    refresh_handle_storage["handle"] = async_call_later(
+        hass, REFRESH_INTERVAL, refresh_alarm
+    )
 
     def unregister_refresh() -> None:
         """Unregister the refresh callback."""
         _LOGGER.debug("Unregistering refresh callback")
-        refresh_handle()
+        if refresh_handle_storage["handle"]:
+            refresh_handle_storage["handle"]()
 
     entry.async_on_unload(unregister_refresh)
 
