@@ -79,13 +79,25 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for day in days:
                 # day: 0=Monday, 6=Sunday (matching Python's weekday)
                 # Check if this day is today and time hasn't passed
-                if day == current_weekday and alarm_time > current_time:
-                    alarm_dt = datetime.combine(
-                        now.date(), alarm_time, tzinfo=now.tzinfo
-                    )
-                    if next_alarm_datetime is None or alarm_dt < next_alarm_datetime:
-                        next_alarm = alarm
-                        next_alarm_datetime = alarm_dt
+                if day == current_weekday:
+                    if alarm_time > current_time:
+                        alarm_dt = datetime.combine(
+                            now.date(), alarm_time, tzinfo=now.tzinfo
+                        )
+                        if next_alarm_datetime is None or alarm_dt < next_alarm_datetime:
+                            next_alarm = alarm
+                            next_alarm_datetime = alarm_dt
+                    else:
+                        # Time has passed today, schedule for next week
+                        days_until = 7
+                        alarm_dt = datetime.combine(
+                            now.date() + timedelta(days=days_until),
+                            alarm_time,
+                            tzinfo=now.tzinfo,
+                        )
+                        if next_alarm_datetime is None or alarm_dt < next_alarm_datetime:
+                            next_alarm = alarm
+                            next_alarm_datetime = alarm_dt
                 # Check future days
                 elif day > current_weekday:
                     days_until = day - current_weekday
