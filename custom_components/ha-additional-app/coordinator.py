@@ -55,6 +55,15 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         tz = None
         if self.device_timezone_name:
             tz = get_time_zone(self.device_timezone_name)
+            if tz is None:
+                _LOGGER.warning(
+                    "Invalid device timezone name: %s, using Home Assistant timezone",
+                    self.device_timezone_name,
+                )
+        
+        # Fallback to Home Assistant timezone if device timezone is not available
+        if tz is None:
+            tz = get_time_zone(self.hass.config.time_zone)
 
         now = datetime.now(tz=tz)
         current_weekday = now.weekday()  # 0=Monday, 6=Sunday
@@ -67,8 +76,14 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if not alarm.get("isEnabled", True):
                 continue
 
-            alarm_time = self._parse_time(alarm["time"])
+            # Support both "time" string format and separate "hour"/"minute" fields
+            alarm_time = self._parse_time(alarm.get("time", ""))
+            if alarm_time is None and "hour" in alarm and "minute" in alarm:
+                alarm_time = time(alarm["hour"], alarm["minute"])
             if alarm_time is None:
+                _LOGGER.warning(
+                    "Could not parse alarm time from alarm data: %s", alarm
+                )
                 continue
 
             days = alarm.get("days", [])
